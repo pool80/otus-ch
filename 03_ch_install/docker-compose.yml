@@ -1,0 +1,27 @@
+services:
+  ch_server:
+    image: clickhouse/clickhouse-server:23.8.14.6-alpine
+    container_name: ch
+    hostname: ch01
+    volumes:
+      - db-log:/var/log/clickhouse-server
+      - db-data:/var/lib/clickhouse
+      - db-etc:/etc/clickhouse-server
+
+    ports:
+      - "127.0.0.1:8123:8123"
+      - "127.0.0.1:9000:9000"
+    networks:
+        - ch_net
+
+networks:
+  ch_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.10.0/24
+
+volumes:
+  db-data:
+  db-log:
+  db-etc:

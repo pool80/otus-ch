@@ -1,0 +1,76 @@
+# create user
+CREATE USER clickhouse_admin IDENTIFIED BY 'qwerty';
+
+# grant permissiion
+GRANT ALL ON *.* TO clickhouse_admin WITH GRANT OPTION;
+
+# connect 
+clickhouse-client --user clickhouse_admin --password qwerty
+
+# create db
+CREATE DATABASE test_database;
+
+#  create table
+CREATE TABLE test_database.test_table (
+    id UInt64,
+    column1 String,
+    column2 String
+)
+ENGINE MergeTree
+ORDER BY id;
+
+# insert values 
+INSERT INTO test_database.test_table
+    (id, column1, column2)
+VALUES
+    (1, 'A', 'abc'),
+    (2, 'A', 'def'),
+    (3, 'B', 'abc'),
+    (4, 'B', 'def');
+
+# select 
+SELECT *
+FROM test_database.test_table
+
+# create user for db only
+```
+CREATE USER clickhouse_user IDENTIFIED BY 'password';
+
+GRANT ALL ON test_database.* TO clickhouse_user WITH GRANT OPTION;
+```
+
+# disable permission from default user
+```
+<clickhouse>
+    <users>
+        <default>
+            <password remove='1' />
+            <password_sha256_hex>65e84be33532fb784c48129675f9eff3a682b27168c0ea744b2cf58ee02337c5</password_sha256_hex>
+            <profile>readonly</profile>
+            <access_management>0</access_management>
+
+            <!--
+            <named_collection_control>1</named_collection_control>
+            <show_named_collections>1</show_named_collections>
+            <show_named_collections_secrets>1</show_named_collections_secrets>
+            -->
+        </default>
+    </users>
+</clickhouse>
+```
+
+# disable default user
+```
+<default remove="remove">
+</default>
+```
+
+# delete from table
+## lightweight delete
+```
+DELETE FROM test_database.test_table WHERE column2 LIKE '%abc%';
+```
+## Altering data using Mutations
+```
+ALTER TABLE test_database.test_table DELETE WHERE column2 LIKE '%def%';
+```
